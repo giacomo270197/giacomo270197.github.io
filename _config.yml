@@ -2,7 +2,7 @@ title: Giacomo's Blog
 description: >- # this means to ignore newlines until "baseurl:"
   A blog to collect the results, lessons learnt, and genral thoughts about my projects and experiments.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://giacomo270197.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://www.poisonedlogs.com" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: giacomo270197
 
 remote_theme: tareqdandachi/jekyll-shell-theme
@@ -13,7 +13,14 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
 
+
+sass:
+  style: compressed
+
+highlighter: rouge
+
+
 header_pages:
   - home.md
-  - about_me.md
+  - about.md
   - blog.md
