@@ -1,7 +1,7 @@
 ---
 layout: page
 title: "Welcome"
-permalink: /
+permalink: //
 ---
 
 # This is the landing page
