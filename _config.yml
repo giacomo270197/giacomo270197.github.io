@@ -30,8 +30,8 @@ twitter_username: jekyllrb
 github_username:  jekyll
 
 # Build settings
-# theme: jekyll-theme-hacker
-remote_theme: tzuehlke/jekyll-uno-timeline
+theme: jekyll-theme-hacker
+# remote_theme: tzuehlke/jekyll-uno-timeline
 plugins:
   - jekyll-feed
 
