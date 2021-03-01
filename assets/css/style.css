@@ -4,4 +4,4 @@
 @import "{{ site.theme }}";
 
 code {color: green; font-size: 15px}
-body { background-color: var(--bg-color); color: var(--main-color); font-family: 'Roboto Mono', monospace; margin: 0 auto; width: 90%; max-width: 900px; line-height: 2em; font-size: 0.9em; }
+#body { background-color: var(--bg-color); color: var(--main-color); font-family: 'Roboto Mono', monospace; margin: 0 100px 0; width: 120%; max-width: 1400px; line-height: 2em; font-size: 0.9em; }
