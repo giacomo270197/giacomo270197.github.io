@@ -6,7 +6,7 @@ permalink_name: DLLInjection
 
 The first technique I decided to implement was DDL injection. Again, the implementation is going to be in Go.
 
-First thing first, the general idea behind DLL injection is fairly simple. 
+First things first, the general idea behind DLL injection is fairly simple. 
 When a DLL is loaded into a process, the DLLMain entrypoint is executed. If we can load a DLL into a target process, possibly one running with higher privileges or anyway trusted by the OS, explorer.exe or svchost.exe for example, we could get code execution within that process context.
 
 There are generally two ways to go about DLL injection. Either you load the path to the DLL into the target memory and then call `LoadLibraryA` on it, or you load the entire DLL, locate its entrypoint, and start a thread to run from there.
