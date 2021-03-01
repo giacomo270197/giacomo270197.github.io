@@ -4,7 +4,7 @@
 :root { --main-color: white; --bg-color: black; --text-color: #DDD; --pop-color: white; --alt-color: #2ed573; --light-alt-color: rgba(46, 213, 115); }
 
 /* BASE */
-body { background-color: var(--bg-color); color: var(--main-color); font-family: 'Roboto Mono', monospace; margin: 0 auto; width: 90%; max-width: 700px; line-height: 2em; font-size: 0.9em; }
+body { background-color: var(--bg-color); color: var(--main-color); font-family: 'Roboto Mono', monospace; margin: 0 auto; width: 120%; max-width: 1400px; line-height: 2em; font-size: 0.9em; }
 
 h1, h2, h3, h4, h5, h6 { margin: 0px; margin-top: 22px; font-weight: bold; color: var(--pop-color); font-size: 1em; }
 
@@ -16,7 +16,7 @@ a:hover { color: var(--bg-color); background-color: var(--alt-color); }
 
 .primary-text { color: var(--main-color); }
 
-@media only screen and (max-device-width: 500px) { * { font-size: 12px !important; } }
+@media only screen and (max-device-width: 1000px) { * { font-size: 12px !important; } }
 b, strong { color: var(--main-color); }
 
 .invert { color: var(--bg-color); background-color: var(--main-color); padding-left: 3px; padding-right: 3px; padding-top: 1px; padding-bottom: 1px; }
@@ -25,7 +25,7 @@ b, strong { color: var(--main-color); }
 body.large { line-height: 2em; font-size: 1em; }
 
 /* LAYOUT */
-.container { margin-right: auto; margin-left: auto; }
+.container { margin-right: 3em; margin-left: 3em; }
 
 p { word-wrap: break-word; word-break: break-word; white-space: pre-wrap; }
 
@@ -36,6 +36,8 @@ header { margin-top: 25px; margin-bottom: 10px; }
 header p { text-align: left; margin: 0; }
 
 footer { margin-bottom: 20px; }
+
+code { color: green; font-size: 15px}
 
 img.home_header { width: 100%; margin-top: 5%; margin-bottom: 5%; }
 

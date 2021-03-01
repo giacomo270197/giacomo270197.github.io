@@ -24,3 +24,5 @@ header_pages:
   - home.md
   - about.md
   - blog.md
+
+font-size: large
