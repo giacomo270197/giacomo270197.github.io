@@ -137,7 +137,7 @@ windows.WaitForSingleObject(handle, windows.INFINITE)
 ```
 
 I created a DLL reverse shell with Metasploit for testing, and lo and behold, it works!
-As you can see in the picture, I injected a SYSTEM process (svchost.exe) to launch a reverse shell to an Ubutnu box, where I catch it and get, indeed, a SYSTEM shell. Also, in Process Explorer, you can verify that the process does not show anywhere.
+As you can see in the picture, I injected a SYSTEM process (svchost.exe) to launch a reverse shell to an Ubutnu box, where I catch it and get, indeed, a SYSTEM shell. Also, in Process Explorer, you can verify that the process does not show.
 
 
 <img src="/assets/images/dllinject.png" alt="DLL injection succeeds" width="1400"/>
