@@ -98,7 +98,7 @@ if r1 == 0 {
 fmt.Printf("[+] Written %d bytes to remote process\n", writtenBytes)
 ```
 
-We now need to get the address of `LoadLibraryA`, defined in `kernel32.dll` so that we can later start a new thread to execute it. Interestingly, getting the address of the functions in the local process rather than in the remote one works fine. You can find out more why in (this Stackoverflow thread)[https://stackoverflow.com/questions/22750112/dll-injection-with-createremotethread]. Because of this, getting the address of `LoadLibraryA` is as simple as calling `GetProcAddress`.
+We now need to get the address of `LoadLibraryA`, defined in `kernel32.dll` so that we can later start a new thread to execute it. Interestingly, getting the address of the functions in the local process rather than in the remote one works fine. You can find out more about why that is in [this Stackoverflow thread](https://stackoverflow.com/questions/22750112/dll-injection-with-createremotethread). Because of this, getting the address of `LoadLibraryA` is as simple as calling `GetProcAddress`.
 
 ```
 moduleName, err := windows.UTF16FromString("kernel32.dll")
