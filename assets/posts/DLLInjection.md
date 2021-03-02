@@ -141,3 +141,8 @@ As you can see in the picture, I injected a SYSTEM process (svchost.exe) to laun
 
 
 <img src="/assets/images/dllinject.png" alt="DLL injection succeeds" margin="0 250px 0" width="100%"/>
+
+
+
+Please find the code [here](https://github.com/giacomo270197/Malware_Techniques_Implementations/blob/main/src/injectors/dll_injection/injector.go)
+
