@@ -54,7 +54,7 @@ if err != nil {
 }
 ```
 
-Now we are ready to use `AdjustTokenPrivileges` to change the privileges of our process. The function takes a `TOKEN_PRIVILEGES` instance as an argument, so we will need to create one where we specify we are only modifying one privilege (`PrivilegeCount` = 1) and that privilege is `SeDegubPrivilege` which will be enabled. This can be done by adding a single entry to the arrays of `LUID_AND_ATTRIBUTES` with the `LUID` we retrieved earlier and the self-explanatory attribute `SE_PRIVILEGE_ENABLED`.
+Now we are ready to use `AdjustTokenPrivileges` to change the privileges of our process. The function takes a `TOKEN_PRIVILEGES` instance as an argument, so we will need to create one where we specify we are only modifying one privilege (`PrivilegeCount` = 1) and that privilege is `SeDebugPrivilege` which will be enabled. This can be done by adding a single entry to the arrays of `LUID_AND_ATTRIBUTES` with the `LUID` we retrieved earlier and the self-explanatory attribute `SE_PRIVILEGE_ENABLED`.
 
 ```go
 // Modify the token
