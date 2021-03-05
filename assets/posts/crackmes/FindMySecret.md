@@ -113,7 +113,7 @@ void setGlobal(void)
 
 In short, the function initializes a variable to a random number depending on the time of execution, `mod`s it by 50 (0x32 is hex for 50) and divides by 50 so that the result will always be between 0 and 1. It is in a loop because if the global variable ends up being 0 the computation happens again. The creator must have thought that 0 (0 * 10000) would be anyone's initial guess. Since we now know this function initially sets `_DAT_004063e8`, we will call it `setGlobal`.
 
-And this is pretty much it. Only this that's let is to run it and check the memory address containing `_DAT_004063e8` (0x004063e8, conveniently) multiply by 10000 and get the answer.
+And this is pretty much it. Only thing that's left to do is to run it, check the memory address containing `_DAT_004063e8` (0x004063e8, conveniently), multiply by 10000 and get the answer.
 So let's go and do that, here you can see the memory dump at the specific address on Immunity Debugger (memory dump is low left)
 
 <img src="/assets/images/crackmes/fms7.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
