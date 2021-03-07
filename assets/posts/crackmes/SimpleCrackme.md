@@ -4,7 +4,7 @@ permalink: posts/crackmes/SimpleCrackme
 permalink_name: SimpleCrackme
 ---
 
-After successfully solving the [FindMySecrect challenge](/post/crackmes/FindMySecret) I decided to try out another 'easy' rated crackme. The one I went for was [Simple Crackme](https://crackmes.one/crackme/5fec960e33c5d4264e590182).
+After successfully solving the [FindMySecrect challenge](/posts/crackmes/FindMySecret) I decided to try out another 'easy' rated crackme. The one I went for was [Simple Crackme](https://crackmes.one/crackme/5fec960e33c5d4264e590182).
 
 So again, the challenge looks like so
 
