@@ -8,13 +8,13 @@ After successfully solving the [FindMySecrect challenge](/posts/crackmes/FindMyS
 
 So again, the challenge looks like so
 
-<img src="/assets/images/crackmes/sc9.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc9.png"><img src="/assets/images/crackmes/sc9.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 To solve the crackme, we need to find a password and we only have one attempt to get it right.
 
 Once again, to find the bit of code we are interested in we look for the initial string in Ghidra, to check where it is used.
 
-<img src="/assets/images/crackmes/sc1.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc1.png"><img src="/assets/images/crackmes/sc1.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 
 This leads us to the following decompiled funtion
@@ -51,7 +51,7 @@ LAB_00400473:
 We can quite clearly tell that the funtion reads our input, stores it in `local_88` and iterates over every single charachter, 13 of them, to compare it to what we assume is going to be the password. If one character comparison goes wrong, execution jumps to the "you failed" part of the code and exits.
 Our next step now is to check how the password is composed and extrapolate it from the code. A quick look at the disassembled code does not reveal much more than what we already know.
 
-<img src="/assets/images/crackmes/sc2.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc2.png"><img src="/assets/images/crackmes/sc2.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 It seems charachters are picked directly from memory startring from address `0x400418`. We need to know what's at that address, so we load the executable into a debbugger.
 Unfortunately, the PE is compiled for 64 bits so I cannnot use Immunity. I will have to bite the bullet and struggle with WinDBG.
@@ -73,7 +73,7 @@ crack_me+0x410:
 
 We then set a breakpoint to both the entrypoint and the beginning of the checking assembly loop we found. We let the executable run, enter some random password, and end up exactly at the point our password is being checked.
 
-<img src="/assets/images/crackmes/sc3.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc3.png"><img src="/assets/images/crackmes/sc3.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 Now we can start single-stepping throught the loop, really paying attention to the following sequence
 
@@ -93,15 +93,15 @@ The `movzx` and `and` instructions are where the correct password is computed th
 
 As per `movzx`, we notice that `rsi` stays constant, pointing to the same address also referenced in Ghidra decompilation. `rax` is incremented for every cycle
 
-<img src="/assets/images/crackmes/sc4.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc4.png"><img src="/assets/images/crackmes/sc4.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 This means that at every cycle of the loop one byte of the following sequence is loaded into `ecx`
 
-<img src="/assets/images/crackmes/sc5.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc5.png"><img src="/assets/images/crackmes/sc5.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 Moving onto the `cmp` instruction, we now see that our input in `dl` is compared to a byte referenced by `r8` plus `rcx`, which is a result of the previous two `mov` and `and` instructions. We notice that `r8` is constant, and point to the beginning of an interesting memory region
 
-<img src="/assets/images/crackmes/sc11.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc11.png"><img src="/assets/images/crackmes/sc11.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 It seems pretty obvious, at this point, that the final password will a 13-character string composed by the alphabet "BGOTHXIY", and that the order in which letters appear will be dictated by
 
@@ -114,14 +114,14 @@ and therefore by which values are located at `0x400418`. This is also helps maki
 
 At this point we know how the password is computed, but recoposing it would be tedious work. Fortunately WinDBG comes to our help here. When we are about to execute the `cmp` instruction, the debugger tells us the content of `[rcx+r8]`, making it quite easy for us to compare it to the contents of `dl`
 
-<img src="/assets/images/crackmes/sc6.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc6.png"><img src="/assets/images/crackmes/sc6.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 At this point we can change the content of the `dl` register to match the result of the password calculation, without having to compute it ourselves. The `cmp` executes, we get to the `jmp`, but we are not sent to the section of code that tells us we got the password wrong. Rather, we cycle back to our breakpoint.
 
-<img src="/assets/images/crackmes/sc7.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc7.png"><img src="/assets/images/crackmes/sc7.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 Now we just repeat the process for all 13 cycles, and we note which characther each cycle computes. We do this and we get the password `BXXGYYYBGIBXX`.
 
-<img src="/assets/images/crackmes/sc8.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/sc8.png"><img src="/assets/images/crackmes/sc8.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 And we got it!

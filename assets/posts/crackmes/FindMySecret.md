@@ -10,14 +10,14 @@ So without further ado, let's get into my first (serious-ish) crackmes: [FindMyS
 
 Like many crackmes, this challenge is all about getting your hands on a "password". Running the executable we are greeted with the following
 
-<img src="/assets/images/crackmes/fms10.png" alt="FindMySecret" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms10.png"><img src="/assets/images/crackmes/fms10.png" alt="FindMySecret" margin="0 250px 0" width="100%"/></a>
 
 So apparently we have to find a number that serves as a password, and the number should be within a certain range.
 At this point, I am drawing up some sort of idea about what the program is probably like. I expect to see the welcome string (`Enter the secret number`) repeated in some loop. In the same loop, I expect to find a `scanf` or something akin to it, some routine to check the input, and some code to tell us whether we hit the jackpot or not. Clearly, the checking code is where we hope to find our password.
 
 Loading up the file on Ghidra, unfortunately, I cannot find any function that stands out for being `main()`, so I go searching for the welcome string to see if I can find it. The string shows up as follows:
 
-<img src="/assets/images/crackmes/fms1.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms1.png"><img src="/assets/images/crackmes/fms1.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 If we follow the function Ghidra tells us the string is used in we end up to this bit of decompiled code (which I call `main`, even if it might not be at this point)
 
@@ -39,12 +39,12 @@ undefined4 main(undefined param_1)
 
 This doesn't tell us much. It seems some function is called directly with a pointer to memory. Looking at the disassembly is more useful in this case. If we go to the `printf` for our welcome string we are met with something like this
 
-<img src="/assets/images/crackmes/fms2.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms2.png"><img src="/assets/images/crackmes/fms2.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 From here on out we can start checking what the function does. We are interested in `cmp` instructions especially or function calls that might lead us to find the password.
 The first noteworthy point is a `cmp` between `EAX` (where the output of `scanf` is) and a hardcoded hex value that stands for 9999. Id `EAX` turns out being bigger than that, the `jg` instruction will redirect execution to a section that will print out the out-of-range message. We now know that 9999 is the limit out input goes to.
 
-<img src="/assets/images/crackmes/fms3.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms3.png"><img src="/assets/images/crackmes/fms3.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 We then run into a function call that points to the following decompiled function
 
@@ -88,11 +88,11 @@ which confirms that `check` is indeed what we should focus on. Since this functi
 
 At this point, our `main` body looks like this
 
-<img src="/assets/images/crackmes/fms5.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms5.png"><img src="/assets/images/crackmes/fms5.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 What we now need to find, is where `_DAT_004063e8` is initialized, and to what. Ghidra shows us that the variable is only used in one other function other than `check`
 
-<img src="/assets/images/crackmes/fms6.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms6.png"><img src="/assets/images/crackmes/fms6.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 We follow the function and find this decompiled routine
 
@@ -116,14 +116,14 @@ In short, the function initializes a variable to a random number depending on th
 And this is pretty much it. Only thing that's left to do is to run it, check the memory address containing `_DAT_004063e8` (0x004063e8, conveniently), multiply by 10000 and get the answer.
 So let's go and do that, here you can see the memory dump at the specific address on Immunity Debugger (memory dump is low left)
 
-<img src="/assets/images/crackmes/fms7.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms7.png"><img src="/assets/images/crackmes/fms7.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 Once we extracted the hex value (`0x3fe280f0197c71a7`) we go and convert it to double online, since Immunity does not seem to recognize it. We get `0.5782` as a result.
 
-<img src="/assets/images/crackmes/fms9.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms9.png"><img src="/assets/images/crackmes/fms9.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 Now we multiply `0.5782` by 10000 as we found out the code does, and if we insert `5782` as "secret number" we are welcomed with a success message
 
-<img src="/assets/images/crackmes/fms8.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/fms8.png"><img src="/assets/images/crackmes/fms8.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 And we solved the challenge!

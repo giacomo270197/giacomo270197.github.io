@@ -7,15 +7,15 @@ permalink_name: SecureSoftware
 I decided to do [this crackme](https://crackmes.one/crackme/60276fb033c5d42c3d016a46) because I wanted to try something that I couldn't easily find an answer to by running the executable in a debugger.
 According to the author and to the comment sections, this challenge had some sort of anti-debugging measures implemented, so I decided I would try to solve the whole challenge by just using a disassembler (Ghidra, of course).
 
-Ther is a README to this challenge, long story short, the executable pretends to be a commercial software that needs a key to be unlocked. In order to get the key, we need to "get in touch with the vendor". Of course, we really need to crack it.
+There is a README to this challenge, long story short, the executable pretends to be a commercial software that needs a key to be unlocked. In order to get the key, we need to "get in touch with the vendor". Of course, we really need to crack it.
 
 If we run the executable, we are met with the following
 
-<img src="/assets/images/crackmes/ss1.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/ss1.png"><img src="/assets/images/crackmes/ss1.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 We are not authorized. Let's load the executable in a Ghidra project. We get no `main` so we go and find `WinMain` from the `entry` function
 
-<img src="/assets/images/crackmes/ss2.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/ss2.png"><img src="/assets/images/crackmes/ss2.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 This leads us to `WinMain`. We copy the signature from Microsoft docs and we are met with the following decompiled function.
 
@@ -101,7 +101,7 @@ remove(".\\SecureSoftware(crackme)\\.KEY");
 
  The preconditions to be met are likely a check to see if the application is called with an `-r` flag which, according to the author, removes all artefact. Could it be that this is where the application stores its config files? It is.
 
-<img src="/assets/images/crackmes/ss3.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/ss3.png"><img src="/assets/images/crackmes/ss3.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 Nice, now that we know where the file likely searches for a key, we can continue on and see where the key is actually loaded and checked.
 
@@ -255,7 +255,7 @@ authfile.close()
 
 We run it on a fresh config state, and we got the challenge.
 
-<img src="/assets/images/crackmes/ss4.png" alt="SearchingMain" margin="0 250px 0" width="100%"/>
+<a href="/assets/images/crackmes/ss4.png"><img src="/assets/images/crackmes/ss4.png" alt="SearchingMain" margin="0 250px 0" width="100%"/></a>
 
 
 
