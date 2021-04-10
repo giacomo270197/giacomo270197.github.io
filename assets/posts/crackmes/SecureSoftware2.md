@@ -4,7 +4,7 @@ permalink: posts/crackmes/SecureSoftware2
 permalink_name: SecureSoftware2
 ---
 
-The second medium rated crackmes I tried was [SecureSoftware1.5](https://crackmes.one/crackme/6049c26733c5d42c3d016de3), from the same author, (pranav)[https://crackmes.one/user/pranav], as the easy rated "SecureSoftware" challenge.
+The second medium rated crackmes I tried was (SecureSoftware1.5)[https://crackmes.one/crackme/6049c26733c5d42c3d016de3], from the same author, (pranav)[https://crackmes.one/user/pranav], as the easy rated "SecureSoftware" challenge.
 This crackme is in many ways similar to the previous one, as per the README the environment has to be initialized by calling the executable with the `-i` flag and can be torn down with the `-u` flag.
 Initialization will request a key. At this point, any key will do, but if the wrong key is provided, executing the program will result in an "Illegal copy" error message like this.
 
