@@ -15,7 +15,7 @@ The challenge is twofold. The main goal of this crackme is to solve the puzzle b
 We load the executable into Ghidra and we are met with really clear and understandable decompilation, therefore we won't be reading over too much assembly this time.
 First off, we want to start making some sense of `WinMain` (which is quite trivial to find).
 
-First off we see the working directory is changed to the user home folder so we expect to see artefacts created there
+We see the working directory is changed to the user home folder so we expect to see artefacts created there
 
 ```c
 lpDst = (LPCSTR)malloc(0xff);
@@ -143,7 +143,7 @@ fclose(_File);
 }
 ```
 
-In short, this section checks the output of the `checkAuthdata`, stored in the "key" section of `authdata`. If the key anything but `-1`, it prints the error message we saw at the beginning and exits. `authdataEqualsbu1oq_00407038` and `strcmpResult_0040703a` (`DAT_0040703a`) are also global flags needed to pass the `if` check, and are reset to a failing state if the key check fails. However, if it succeeds, the flag `checkingFunctionPassed_0040703c` (`DAT_0040703c`) is set to a passing state.
+In short, this section checks the output of the `checkAuthdata` function, stored in the "key" section of `authdata`. If the key anything but `-1`, it prints the error message we saw at the beginning and exits. `authdataEqualsbu1oq_00407038` and `strcmpResult_0040703a` (`DAT_0040703a`) are also global flags needed to pass the `if` check, and are reset to a failing state if the key check fails. However, if it succeeds, the flag `checkingFunctionPassed_0040703c` (`DAT_0040703c`) is set to a passing state.
 We now need to understand how the `checkAuthdata` function works, and this is honestly the main challenge of this crackme.
 
 I am now going to walk through the main portions of `checkAuthdata`. Note that all this code is already annotated by me.
