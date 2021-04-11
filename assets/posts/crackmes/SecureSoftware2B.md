@@ -109,7 +109,7 @@ Knowing that this part of the function will be executed five times, seeing that 
     00404038 [4]                   E5B5h
 ```
 
-Two more globals, `DAT_00404040` and `DAT_00404044` are set to `0` if all elements in `DAT_00404028` equal `0`. Elements in `DAT_00404028` when a computed checksum meets the expected value, so we can infer that `DAT_00404040` and `DAT_00404044` will e both set to `0` after the function has executed five times successfully, one for each function.
+Two more globals, `DAT_00404040` and `DAT_00404044` are set to `0` if all elements in `DAT_00404028` equal `0`. Elements in `DAT_00404028` when a computed checksum meets the expected value, so we can infer that `DAT_00404040` and `DAT_00404044` will be both set to `0` after the function has executed five times successfully, one for each function.
 
 We see these two variables being used a bit everywhere in the program, and finding all usages would be tedious. Since the anti-patching function sets guards used elsewhere we cannot just patch it out. We can, however, make sure that all the guards will be set right no matter how many times the function completes successfully. This means that `DAT_00407040` must be set to `5` immediately, and `DAT_00404040` and `DAT_00404044` must be set to `0` regardless of the content of `DAT_00404028`. We do the patching accordingly and we are left with the following code.
 
@@ -180,7 +180,7 @@ if (BVar1 != 0) {
 }
 ```
 
-and we move on. This will of course then not work outside of a debugger, we could've also patched out the `if` check, but this is quicker for now.
+and we move on. This will also work outside of a debugger, since `noDebuggerPresent_00404024` (`DAT_00404024`) is actually initialized to `2` anyway.
 
 In the previous post, I went over a time base anti-debugging measure that was called in `WinMain`, in the initialization function, and in the `authdata` validation routine.
 Here's the code
