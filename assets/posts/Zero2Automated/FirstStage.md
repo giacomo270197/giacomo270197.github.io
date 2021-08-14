@@ -4,7 +4,7 @@ permalink: posts/Zero2Automated/FirstStage
 permalink_name: FirstStage
 ---
 
-I recently bought the [Zero2Automated](https://courses.zero2auto.com/) course from 0verfl0w_ and Vitali Kremez, in search for a course that would cover more than just the basics of malware analysis, and that would present me with real malware to analyze. I got half-way throught the the course, and so far, it's been nothing less than great.
+I recently bought the [Zero2Automated](https://courses.zero2auto.com/) course from 0verfl0w_ and Vitali Kremez, in search for a course that would cover more than just the basics of malware analysis, and that would present me with real malware to analyze. I got half-way through the course, and so far, it's been nothing less than great.
 
 The course offers a kind of mid-term exam/exercise. It's a malware sample to analyze completely on your own, with no guidance whatsoever. The next few posts will cover my progress through the exercise.
 
@@ -17,7 +17,7 @@ At this point I'm ready to have a look at the code, I load the file in Ghidra to
 
 <a href="/assets/images/Zero2Automated/fs2.png"><img src="/assets/images/Zero2Automated/fs2.png" margin="0 250px 0" width="100%"/></a>
 
-From the disassembler we can get the memory location of the main funtion. x64dbg doesn't automatically set a breakpoint here, so we'll go ahead and add one ourselves. We can also see that almost immediately we have calls to `LoadLibrary` and `GetProcAddress`, and before that a function is called several times with some odd strings as input. We can assume that the malware dinamycally loads the required procedures, which are are stored either encoded or encypted somewhere.
+From the disassembler we can get the memory location of the main funtion. x64dbg doesn't automatically set a breakpoint here, so we'll go ahead and add one ourselves. We can also see that almost immediately we have calls to `LoadLibrary` and `GetProcAddress`, and before that a function is called several times with some odd strings as input. We can assume that the malware dynamically loads the required procedures, which are stored either encoded or encypted somewhere.
 
 I didn't find any use in doing any further static analysis, so I jumped to x32dbg directly.
 
@@ -27,7 +27,7 @@ There are two main parts to the routine. The first one does nothing but restorin
 
 <a href="/assets/images/Zero2Automated/fs3.png"><img src="/assets/images/Zero2Automated/fs3.png" margin="0 250px 0" width="100%"/></a>
 
-The highlighted bit in the degugger is where the magic all happens. Each letter of the encode string is in a lookup table, some calculation based on its positioning are done, and the result is a pointer to a location in the same table that represents the original charachter. I wrote a little bit of Python to decode each string.
+The highlighted bit in the debugger is where the magic all happens. Each letter of the encoded string is in a lookup table, some calculation based on its positioning are done, and the result is a pointer to a location in the same table that represents the original charachter. I wrote a little bit of Python to decode each string.
 
 ```python
 lookup = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890./="
@@ -48,7 +48,7 @@ for x in encoded:
 print(decoded.join(""))
 ```
 
-If we keep single stepping through the sample, we see that it immediately resolves calls to `FindResourceA`, `LoadResource`, `SizeOfResource`, and `LockResource`. This confirms our initial hypothesis about something interesing lying the the rcdata resource we found.
+If we keep single stepping through the sample, we see that it immediately resolves calls to `FindResourceA`, `LoadResource`, `SizeOfResource`, and `LockResource`. This confirms our initial hypothesis about something interesing lying in the rcdata resource we found.
 
 After loading the resource, the sample resolves `VirtualAlloc`, and it uses it to allocate a region of 4096 bytes in its own memory. If we keep an eye on the return address of `VirtualAlloc`, we can see that it soon gets filled with random looking data.
 
@@ -61,11 +61,11 @@ Almost immediately we stumble across what's very clearly an RC4 decytption routi
 <a href="/assets/images/Zero2Automated/fs5.png"><img src="/assets/images/Zero2Automated/fs5.png" margin="0 250px 0" width="100%"/></a>
 
 We quickly retrieve the key located at `ebx-108` (see memory location `0114158C`): `kkd5YdPM24VBXmi`.
-At this point I am pretty confident in the assumption that blob of data we saw earlier is RC4 encypted, and that this decryption routine will reveal its contents. Sure enough, we skip to the end of the decryption loop and we are greeted with a PE file!
+At this point I am pretty confident in the assumption that the blob of data we saw earlier is RC4 encypted, and that this decryption routine will reveal its contents. Sure enough, we skip to the end of the decryption loop and we are greeted with a PE file!
 
 <a href="/assets/images/Zero2Automated/fs6.png"><img src="/assets/images/Zero2Automated/fs6.png" margin="0 250px 0" width="100%"/></a>
 
-This can also be atomated by retrieving the ancypted data and running some Python decyption like so
+This can also be atomated by retrieving the ancypted data and running some Python decryption like so
 
 ```python
 from Crypto.Cipher import ARC4
@@ -79,7 +79,7 @@ out = chipher.decrypt(content)
 
 We could dump this out immediately, but as of now we still have no certainty that this is indeed the executable execution will be passed to, so we wait and see what the malware does with it.
 
-Next, the sample gets its own path with `GetModuleFileName` and resolves and loads `CreateProcessA`. This is then called to spawn a new process, which will likely be the host of the new PE we just decypted in memory.
+Next, the sample gets its own path with `GetModuleFileName` and resolves and loads `CreateProcessA`. This is then called to spawn a new process, which will likely be the host of the new PE we just decrypted in memory.
 
 <a href="/assets/images/Zero2Automated/fs7.png"><img src="/assets/images/Zero2Automated/fs7.png" margin="0 250px 0" width="100%"/></a>
 
@@ -89,7 +89,7 @@ Finally, the sample allocates 98kb in the target process, starting from the base
 
 <a href="/assets/images/Zero2Automated/fs8.png"><img src="/assets/images/Zero2Automated/fs8.png" margin="0 250px 0" width="100%"/></a>
 
-At this point we can be certain that the decypted PE file was indeede the unpacked payload. Instead of dumping the PE from out sample memory, we can go and directly dump it from the second process memory, right before `ResumeThread` is called. This way we can be sure we are getting a complete and uncorrupted executable (since it was ready to run).
+At this point we can be certain that the decypted PE file was indeed the unpacked payload. Instead of dumping the PE from our sample memory, we can go and directly dump it from the second process memory, right before `ResumeThread` is called. This way we can be sure we are getting a complete and uncorrupted executable (since it was ready to run).
  
 <a href="/assets/images/Zero2Automated/fs9.png"><img src="/assets/images/Zero2Automated/fs9.png" margin="0 250px 0" width="100%"/></a>
 
