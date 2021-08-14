@@ -8,6 +8,7 @@ permalink_name: /blog
 Hi there, great that you wanna read some of my stuff!
 See if any of this seems interesting to you.
 
+- [Zero2Automated Practice Exercise (1st stage)](/posts/Zero2Automated/FirstStage)
 - [Crackmes - SecureSoftware1.5 (Bonus)](/posts/crackmes/SecureSoftware2B)
 - [Crackmes - SecureSoftware1.5](/posts/crackmes/SecureSoftware2)
 - [Crackmes - Anti CrackMe](/posts/crackmes/AntiCrackMe)
