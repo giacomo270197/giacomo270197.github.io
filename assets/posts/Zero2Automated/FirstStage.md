@@ -1,6 +1,6 @@
 ---
 title: First Stage
-permalink: /Zero2Automated/FirstStage
+permalink: posts/Zero2Automated/FirstStage
 permalink_name: FirstStage
 ---
 
