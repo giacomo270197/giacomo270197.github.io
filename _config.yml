@@ -5,7 +5,8 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://www.poisonedlogs.com" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: giacomo270197
 
-remote_theme: tareqdandachi/jekyll-shell-theme
+theme: jekyll-shell-theme
+#remote_theme: tareqdandachi/jekyll-shell-theme
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
