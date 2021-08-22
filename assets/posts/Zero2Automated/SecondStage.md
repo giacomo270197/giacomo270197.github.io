@@ -5,15 +5,15 @@ permalink_name: SecondStage
 ---
 
 Starting from we left off [in the previous post](/posts/Zero2Automated/SecondStage), we can now go ahead and analyze the dumped executable.
-First of all, we have a look at what PEStudio has to tell us about the executable. Seems like another `C++` executable. `kernel32.dll` is loaded and several functions are imported from it.
+First of all, we have a look at what PEStudio has to tell us about it. Seems like another `C++` executable. `kernel32.dll` is loaded and several functions are imported from it.
 
 <a href="/assets/images/Zero2Automated/ss1.png"><img src="/assets/images/Zero2Automated/ss1.png" margin="0 250px 0" width="100%"/></a>
 
-We can now quickly have a look at the executable on Ghidra before we execute it in a debugger. We can immediately identify the address of the `main()` function. Once again this is going to be useful once we start debugging.
+We can now quickly have a look at the binary on Ghidra before we execute it in a debugger. We can immediately identify the address of the `main()` function. Once again this is going to be useful once we start debugging.
 
 <a href="/assets/images/Zero2Automated/ss2.png"><img src="/assets/images/Zero2Automated/ss2.png" margin="0 250px 0" width="100%"/></a>
 
-We can now start debugging. The first thing the sample does is to get the executable file name, with a call to `GetModuleFileNameA` and a `strtok` loop.
+The first thing the sample does is to get the executable file name, with a call to `GetModuleFileNameA` and a `strtok` loop.
 
 At this point, the encoding routine is called. This routine is used to load `kernel32.dll` procedures dynamically. First of all, the function is called and an initialization step is performed. The initialization stores some data at a memory address. This can be replicated with the following Python script, where the `output` variable represents the memory region the initialization writes to.
 
@@ -56,7 +56,7 @@ After that, a function is called which purpose is to load a specific routine. Th
 
 <a href="/assets/images/Zero2Automated/ss4.png"><img src="/assets/images/Zero2Automated/ss4.png" margin="0 250px 0" width="100%"/></a>
 
-At this point, the encoding routine generates a DWORD using the previously initialized memory and the procedure name as an input. The encoding can be reproduced by the following script, where `output` is the initialized memory, and `string` is the procedure name.
+Then, the encoding routine generates a DWORD using the previously initialized memory and the procedure name as an input. The encoding can be reproduced by the following script, where `output` is the initialized memory, and `string` is the procedure name.
 
 ```python
 string = "the_procedure_name"
