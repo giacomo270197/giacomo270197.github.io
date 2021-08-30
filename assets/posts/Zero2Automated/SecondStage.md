@@ -4,7 +4,7 @@ permalink: posts/Zero2Automated/SecondStage
 permalink_name: SecondStage
 ---
 
-Starting from we left off [in the previous post](/posts/Zero2Automated/SecondStage), we can now go ahead and analyze the dumped executable.
+Starting from where left off [in the previous post](/posts/Zero2Automated/SecondStage), we can now go ahead and analyze the dumped executable.
 First of all, we have a look at what PEStudio has to tell us about it. Seems like another `C++` executable. `kernel32.dll` is loaded and several functions are imported from it.
 
 <a href="/assets/images/Zero2Automated/ss1.png"><img src="/assets/images/Zero2Automated/ss1.png" margin="0 250px 0" width="100%"/></a>
