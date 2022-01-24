@@ -44,16 +44,16 @@ class ReadNotepad(plugins.PluginInterface):
             ]
 ```
 
-A `run` method must also be implemented. This is the method that will be called when the plugin is invoked, a it must return a `TreeGrid` structure, which Volatility will then take care of pretty printing. The `TreeGrid` structure, however, if generally populated by a `_generator` method, which is then where the work really takes place. Here's the `run` method for my class.
+A `run` method must also be implemented. This is the method that will be called when the plugin is invoked, it must return a `TreeGrid` structure, which Volatility will then take care of pretty printing. The `TreeGrid` structure, however, if generally populated by a `_generator` method, which is then where the work really takes place. Here's the `run` method for my class.
 
 ```python
 def run(self):
     return renderers.TreeGrid([("Content", str)], self._generator())
 ```
 
-Moving on, the first task to accomplish is to find the right process to work on. This is done though the `pslist` plugin, and I feel this is one of those situations where Volatility documentation could use some love. The `pslist` plugin implements the `PsList` class, which returns a `TreeGrid` as a result of its `run` method, like all plugins have to. However the pretty text representation isn't what you want when processing `pslist` output. Instead, you want a iterable object containing `EPROCESS` objects (Volatility internal representation of a process). This can be achieved with a `list_processes` function defined in `PsList` which is not documented anywhere. In order to understand how the function worked, and what to pass to it as arguments, I had to dig through the implementation of other plugins to find.
+Moving on, the first task to accomplish is to find the right process to work on. This is done though the `pslist` plugin, and I feel this is one of those situations where Volatility documentation could use some love. The `pslist` plugin implements the `PsList` class, which returns a `TreeGrid` as a result of its `run` method, like all plugins have to. However the pretty text representation isn't what you want when processing `pslist` output. Instead, you want a iterable object containing `EPROCESS` objects (Volatility internal representation of a process). This can be achieved with a `list_processes` function defined in `PsList` which is not documented anywhere. In order to understand how the function worked, and what to pass to it as arguments, I had to dig through the implementation of other plugins to find useful references.
 In any event, the function takes `self.context` (not sure what this is), the memory translation layer, the symbols, and a filter function callback as arguments. After some digging, I found out that the filter function is basically meant to return `True` when something is passed to it that we want to exclude. In other implementation this is used, for example, to exclude PIDs from processing. In our case we don't want to do any filtering so the function always returns `False`.
-After that, each `EPROCESS` is checked to see if the `ImageFileName` (aka the name of the file on disk the process was started from) matches "notepad.exe". If so, the `EPROCESS` object is returned. Some casting is needed to convert the `ImageFileName` attribute to native python strings.
+After that, each `EPROCESS` is checked to see if the `ImageFileName` (aka the name of the file on disk the process was started from) matches "notepad.exe". If so, the `EPROCESS` object is returned. Some casting is needed to convert the `ImageFileName` attribute to native Python strings.
 
 ```python
 def filter_func(self, x):
@@ -77,3 +77,99 @@ The `VadInfo` class in the `vadinfo` plugin implements the `list_vads` method, w
 def get_VADs(self, proc):
     return vadinfo.VadInfo.list_vads(proc, filter_func = self.filter_func)
 ```
+
+Another useful feature of the `vadinfo` info plugin is the `--dump` flag, which allows to dump VADs to disk. After doing that (and after some searching), this shows up in the VAD that starts at offset `0x239776d0000`.
+
+<a href="/assets/images/volatility/text_in_vad.png"><img src="/assets/images/volatility/text_in_vad.png" margin="0 250px 0" width="100%"/></a>
+
+This is great! Now that we know the text is in the memory dump, all that's left to do is to pass each VAD to a function that looks for the text. This is the implementation for it.
+
+```python
+def detect_text(self, vad, proc):
+    text_start = b"\x54\x00\x68\x00\x65\x00\x73\x00\x65\x00"
+    text_end = b"\x74\x00\x2c\x00\x20\x00\x6f\x00\x75\x00\x74\x00"
+    proc_layer_name = proc.add_process_layer()
+    proc_layer = self.context.layers[proc_layer_name]
+    vad_content = b""
+    chunk_size = 1024 * 1024 * 10
+    offset = vad.get_start()
+    while offset < vad.get_end():
+        to_read = min(chunk_size, vad.get_end() - offset)
+        vad_content += proc_layer.read(offset, to_read, pad = True)
+        offset += to_read
+    start_search_result = vad_content.find(text_start)
+    if start_search_result != -1:
+        end_search_result = vad_content.find(text_end, start_search_result)
+        return [True, start_search_result, end_search_result, vad_content[start_search_result:end_search_result+1]]
+    return [False, -1, -1]
+```
+
+"Hey that's cheating!" I hear you say. That's true somewhat, the function looks for the UTF-16 encoding of the first ("These") and last ("Robot") words of the known text, and if the words are found the function returns `True`, the start and end offsets, and everything in between them. Of course this only works with known text, but distinguishing between user-input and other strings present in memory isn't really the point of this experiment.
+I wasn't sure how to read bytes from memory (again, the documentation for Volatility could use some work) so I checked the `vadinfo` plugin. Like we saw earlier, the plugin has the capability of dumping memory content to disk so it must be able to read bytes from memory. As expected, the `VadInfo` class implements a `vad_dump` method from which I took the memory reading implementation above.
+
+All said and done, all that's left is to put it all together in the `_generator` method and test it out. This is what the method looks like.
+
+```python
+def _generator(self):
+    proc = self.find_PID()
+    vads = self.get_VADs(proc)
+    for vad in vads:
+        res = self.detect_text(vad, proc)
+        if res[0]:
+            content = res[3].replace(b"\x00", b"")
+            content = content.decode("utf-8")
+            yield (0, [content])
+            break
+```
+
+Testing time! We run the plugin, which quickly retrieves the results as expected.
+
+<a href="/assets/images/volatility/result.png"><img src="/assets/images/volatility/result.png" margin="0 250px 0" width="100%"/></a>
+
+At this point, the plugin is working and I could call it day. However, the main point of the exercise in "The Art Of Memory Forensics" was to show that looking in the right places could drastically reduce the search space. In our case, we are currently looking through all the VADs, while we should really only focus on the ones that represent the heaps of the process. This is because we know the text will be stored in a heap.
+In the book this is easily done via a plugin for Volatility 2 called `heaps` which lists out the heaps for a given process. No such plugin is available for Volatility 3 however (nor for newer profiles on Volatility 2, is my understanding).
+Well no matter! We can easily the information we need from the PEB of the process, right? Well kind of. That can definitely be done, and sure enough that's what I ended up doing, but there are some differences between Volatility 2 and 3 that made this process a bit more tedious than expected. Here's the bottlenecks I found:
+- In Volatility 2, one can access the PEB for a process, as an object (`_PEB`), by simply referencing the `.Peb` attribute on a `EPROCESS` object. This is no longer possible on Volatility 3 (`proc.Peb` returns a pointer instead), and the PEB has to be retrieved with the (undocumented) `get_peb` function on the `EPROCESS` class. This caused some confusion and I eventually figured it out digging deep in the bowels of the Volatility codebase.
+- In Volatility 2, it is possible to easily parse PEB fields and have them converted to object to work with. I couldn't do that in Volatility 3. In order to find the heaps, in Vol2, I could simply dereference a pointer to `ProcessHeaps` into an array of pointers with `proc.Peb.ProcessHeaps.dereference()`. This throws an error when done in Volatility 3.
+
+So how did I find the heaps? The manual way.
+First of all I retrieved the number of heaps from the `NumberOfHeaps` field in the PEB. Then, I got the start of the heaps array with the `ProcessHeaps` attribute. Once that's known, each entry can be iterated over and recorded.
+
+We can go over this process in volshell to visualize it a bit better. First of all, the PEB is extracted with the `get_peb` method on the `proc` object. Then, we check how many heaps there are. In this case, we can see there are four heaps in this process (highlighted in blue). We then check the address of the heaps array, and when we go ahead and dump the content at this address we see that there are indeed four addresses (in red, green, yellow, and purple) that point to the four heaps of the process. Specifically, in red, we also see the address of the VAD we know our text resides in. This is very good news!
+
+<a href="/assets/images/volatility/volshell.png"><img src="/assets/images/volatility/volshell.png" margin="0 250px 0" width="100%"/></a>
+
+At this point all we need to do is to put this all in our plugin, together with some byte-to-int conversion to convert the bytestrings to address we can compare to the VAD start addresses.
+
+```python
+def find_heaps(self, proc):
+    heaps = []
+    peb = proc.get_peb()
+    number_of_heaps = peb.NumberOfHeaps
+    process_heaps = peb.ProcessHeaps
+    proc_layer_name = proc.add_process_layer()
+    proc_layer = self.context.layers[proc_layer_name]
+    for _ in range(number_of_heaps):
+        heaps.append(int.from_bytes(proc_layer.read(process_heaps, 8, pad = False), "little"))
+        process_heaps += 8
+    return heaps
+```
+
+We then just need to add a few lines to our `_generator` to skip the search on any non-heap VAD.
+
+```python
+def _generator(self):
+    proc = self.find_PID()
+    heaps = self.find_heaps(proc)
+    vads = self.get_VADs(proc)
+    for vad in vads:
+        if int(vad.get_start()) in heaps:
+            res = self.detect_text(vad, proc)
+            if res[0]:
+                content = res[3].replace(b"\x00", b"")
+                content = content.decode("utf-8")
+                yield (0, [content])
+                break
+```
+
+While this a simple plugin without any real-world application, I think it could still be very useful as a baseline for any application involving searching in memory for just about anything. The `detect_function` is really the only modification needed, and then this could be changed, for example, into a plugin that looks for malware configurations or encryption keys.
