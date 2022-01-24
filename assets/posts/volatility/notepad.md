@@ -4,7 +4,7 @@ permalink: posts/volatility/notepad
 permalink_name: Notepad
 ---
 
-While reading "The Art of Memory Forensics", I came across a plugin the authors wrote to read the text inserted in a Notepad.exe instance off of process memory. While just an example, I figured I would try to implement the plugin myself to make familiarize myself with Volatility internal workings.
+While reading "The Art of Memory Forensics", I came across a plugin the authors wrote to read the text inserted in a Notepad.exe instance off of process memory. While just an example, I figured I would try to implement the plugin myself to familiarize with Volatility internal workings.
 There were mainly two issues to overcome:
 - An actual plugin implementation is never given in the book, nor can be easily found online,
 - The book was written in 2014 and focuses on Volatility 2. I wanted to write my code for Volatility 3, and I wanted it to work on newer versions of Windows.
