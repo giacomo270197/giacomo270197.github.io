@@ -13,7 +13,7 @@ The first thing I needed to do, was to generate a memory dump that I could work 
 
 <a href="/assets/images/volatility/notepad.jpeg"><img src="/assets/images/volatility/notepad.jpeg" margin="0 250px 0" width="100%"/></a>
 
-After obtaining the memory dump, it was time to start writing the plugin. On a general level, the plugin is meant to work similarly as described in the book. First, it should identify the PID of the process where `ImageBaseFile="notepad.exe"`. Then it should list all of the Virtual Address Descriptors (VAD) for the process, and search them for the text we wrote in Notepad.
+After obtaining the memory dump, it was time to start writing the plugin. On a general level, the plugin is meant to work similarly as described in the book. First, it should identify the PID of the process where `ImageBaseFile=="notepad.exe"`. Then it should list all of the Virtual Address Descriptors (VAD) for the process, and search them for the text we wrote in Notepad.
 VADs are data structures maintained by the Windows OS that "track reserved or committed, virtually contiguous collection of pages". These can basically be thought of as chunks of memory pages used for a common purpose and containing extra meta-information on top of the raw memory contents.
 
 I created a plugin file under `volatility3/volatility3/plugins/windows/notepad.py` which implements the `ReadNotepad` class. As per Volatility documentation, a plugin class has to inherit from `plugins.PluginInterface` and must implement a `get_requirements` method. Another requirement I came across, was that the class must contain a `_required_framework_version` attribute, specifying the Volatility 3 version to work with (2.0.0 in my case).
@@ -126,7 +126,7 @@ Testing time! We run the plugin, which quickly retrieves the results as expected
 
 <a href="/assets/images/volatility/result.png"><img src="/assets/images/volatility/result.png" margin="0 250px 0" width="100%"/></a>
 
-At this point, the plugin is working and I could call it day. However, the main point of the exercise in "The Art Of Memory Forensics" was to show that looking in the right places could drastically reduce the search space. In our case, we are currently looking through all the VADs, while we should really only focus on the ones that represent the heaps of the process. This is because we know the text will be stored in a heap.
+At this point, the plugin is working and I could call it a day. However, the main point of the exercise in "The Art Of Memory Forensics" was to show that looking in the right places could drastically reduce the search space. In our case, we are currently looking through all the VADs, while we should really only focus on the ones that represent the heaps of the process. This is because we know the text will be stored in a heap.
 In the book, this is easily done via a plugin for Volatility 2 called `heaps` which lists out the heaps for a given process. No such plugin is available for Volatility 3 however (nor for newer profiles on Volatility 2, is my understanding).
 Well, no matter! We can easily get the information we need from the PEB of the process, right? Well kind of. That can definitely be done, and sure enough, that's what I ended up doing, but there are some differences between Volatility 2 and 3 that made this process a bit more tedious than expected. Here are the bottlenecks I found:
 - In Volatility 2, one can access the PEB for a process, as an object (`_PEB`), by simply referencing the `.Peb` attribute on an `EPROCESS` object. This is no longer possible on Volatility 3 (`proc.Peb` returns a pointer instead), and the PEB has to be retrieved with the (undocumented) `get_peb` function on the `EPROCESS` class. This caused some confusion and I eventually figured it out by digging deep in the bowels of the Volatility codebase.
@@ -172,6 +172,6 @@ def _generator(self):
                 break
 ```
 
-The full code can be found at https://github.com/giacomo270197/Volatility-Plugins/blob/master/notepad.py.
+The full code can be found [here](https://github.com/giacomo270197/Volatility-Plugins/blob/master/notepad.py).
 
 While this is a simple plugin without any real-world application, I think it could still be very useful as a baseline for any application involving searching in memory for just about anything. The `detect_function` is really the only modification needed, and then this could be changed, for example, into a plugin that looks for malware configurations or encryption keys.
