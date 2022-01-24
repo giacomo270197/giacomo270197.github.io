@@ -44,3 +44,36 @@ class ReadNotepad(plugins.PluginInterface):
             ]
 ```
 
+A `run` method must also be implemented. This is the method that will be called when the plugin is invoked, a it must return a `TreeGrid` structure, which Volatility will then take care of pretty printing. The `TreeGrid` structure, however, if generally populated by a `_generator` method, which is then where the work really takes place. Here's the `run` method for my class.
+
+```python
+def run(self):
+    return renderers.TreeGrid([("Content", str)], self._generator())
+```
+
+Moving on, the first task to accomplish is to find the right process to work on. This is done though the `pslist` plugin, and I feel this is one of those situations where Volatility documentation could use some love. The `pslist` plugin implements the `PsList` class, which returns a `TreeGrid` as a result of its `run` method, like all plugins have to. However the pretty text representation isn't what you want when processing `pslist` output. Instead, you want a iterable object containing `EPROCESS` objects (Volatility internal representation of a process). This can be achieved with a `list_processes` function defined in `PsList` which is not documented anywhere. In order to understand how the function worked, and what to pass to it as arguments, I had to dig through the implementation of other plugins to find.
+In any event, the function takes `self.context` (not sure what this is), the memory translation layer, the symbols, and a filter function callback as arguments. After some digging, I found out that the filter function is basically meant to return `True` when something is passed to it that we want to exclude. In other implementation this is used, for example, to exclude PIDs from processing. In our case we don't want to do any filtering so the function always returns `False`.
+After that, each `EPROCESS` is checked to see if the `ImageFileName` (aka the name of the file on disk the process was started from) matches "notepad.exe". If so, the `EPROCESS` object is returned. Some casting is needed to convert the `ImageFileName` attribute to native python strings.
+
+```python
+def filter_func(self, x):
+    False
+
+def find_PID(self):
+    procs = pslist.PsList.list_processes(self.context, self.config['primary'],  self.config['nt_symbols'],  filter_func = self.filter_func)
+    for proc in procs:
+        name = proc.ImageFileName.cast("string", max_length = proc.ImageFileName.vol.count, errors = 'replace')
+        if name == "notepad.exe":
+            return proc      
+```
+
+Now that we have out process object at hand, we need to list out all the VADs for it. This can be done with the `vadinfo` plugin. For each VAD we get some useful info such as the start, end, permissions, file on disk mapped in memory (if present), ...
+
+<a href="/assets/images/volatility/vadinfo.png"><img src="/assets/images/volatility/vadinfo.png" margin="0 250px 0" width="100%"/></a>
+
+The `VadInfo` class in the `vadinfo` plugin implements the `list_vads` method, which takes an `EPROCESS` and a filter function as arguments, and returns a list of VAD objects. The filter function works the same as the one for `list_processes`.
+
+```python
+def get_VADs(self, proc):
+    return vadinfo.VadInfo.list_vads(proc, filter_func = self.filter_func)
+```
