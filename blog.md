@@ -8,6 +8,7 @@ permalink_name: /blog
 Hi there, great that you wanna read some of my stuff!
 See if any of this seems interesting to you.
 
+- [My First Volatility Plugin](/posts/volatility/notepad)
 - [2021 Wrap-Up](/posts/2021-summary)
 - [Zero2Automated Practice Exercise (3nd stage)](/posts/Zero2Automated/ThirdStage)
 - [Zero2Automated Practice Exercise (2nd stage)](/posts/Zero2Automated/SecondStage)
