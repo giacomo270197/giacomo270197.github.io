@@ -8,9 +8,10 @@ permalink_name: /blog
 Hi there, great that you wanna read some of my stuff!
 See if any of this seems interesting to you.
 
+- [Windows Kernel Driver - File Tracing Driver](/posts/kernelDevelopement/FileTracingDriver)
 - [My First Volatility Plugin](/posts/volatility/notepad)
 - [2021 Wrap-Up](/posts/2021-summary)
-- [Zero2Automated Practice Exercise (3nd stage)](/posts/Zero2Automated/ThirdStage)
+- [Zero2Automated Practice Exercise (3rd stage)](/posts/Zero2Automated/ThirdStage)
 - [Zero2Automated Practice Exercise (2nd stage)](/posts/Zero2Automated/SecondStage)
 - [Zero2Automated Practice Exercise (1st stage)](/posts/Zero2Automated/FirstStage)
 - [Crackmes - SecureSoftware1.5 (Bonus)](/posts/crackmes/SecureSoftware2B)
