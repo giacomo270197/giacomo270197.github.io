@@ -2,7 +2,6 @@
 title: $whoami
 permalink: /about
 permalink_name: /about
-
 ---
 
 I am Giacomo and I currently work as a security analyst. I studied Computer Science (BSc) at the University of Groningen and Security and Network Engineering (MSc) at the University of Amsterdam.
