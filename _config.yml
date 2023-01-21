@@ -25,5 +25,6 @@ header_pages:
   - home.md
   - about.md
   - blog.md
+  - panda.md
 
 font-size: large
