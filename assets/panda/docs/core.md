@@ -50,6 +50,8 @@ A variable must always be declared before use. Variables can be declared at any 
 Declaration happens similarly as C, by simply stating the type of the variable in front of it upon first usage.  
 For array types, only the keywork `array` has to be specified. The arrays can be then created with by specifying a size in square brakets or by specifing the actual elements in the array in curly brackets. Either way the keyword `int` or `byte` must be prepended to the braket to speciy the array type.
 
+It is also possible to case a variable to a different type when required. This doesn't add any code, it only informs the compile that the variable should be used as a different type one. This can be done with an assignment to a new type.
+
 Examples:  
 ```
 int a = 5;
@@ -58,6 +60,7 @@ array c int[5];
 array d = int{1, 2, 3, 4, 5};
 array e byte[5];
 array f = byte{1, 2, 3, 4, 5};
+f = int;
 ```
 
 # Operators
@@ -166,4 +169,83 @@ c = a shl b;
 ## Comparision operators
 
 Comparision operators are `>`, `>=`, `<`, `<=`, `==`, `!=` and their usege is similar to other languages.  
-Note that Panda does not have a concept of Boolean value, so statements like `int c = a < b;` are not valid and will produce unexpected results. Comparison operators are to be used with with `if` and `while` statements only.
+Note that Panda does not have a concept of Boolean value, so statements like `int c = a < b;` are not valid and will produce unexpected results. Comparison operators are to be used with with `if` and `while` statements only.  
+
+<br/>
+
+
+# Control flow
+
+## Functions
+
+Functions are defined with the `fn` keyword and given a type. The function definition is otherwise similar to C with parameters in parenthesis in the "type name" format, and code enclosed in curly brakets. For exmple:
+
+```
+int fn ThisIsAFunc(string str, int num) {
+    ...
+}
+```
+
+Functions return with the `return` value, which must always return a value.  
+Note that, despite functions having a type, that currently means nothig since the value returned is always a pointer-sized value regardless.  
+
+Each program should have exactly one `main` function defined to start execution from.
+
+## If-statements
+
+Similar to if-statements in other languages and follow the C syntax.
+
+```
+if(condition) {
+    ...
+} else {
+
+}
+```
+
+Else-if statements are currently not implemented so a nested if-statement is required to acheive the same result.
+
+## Loops
+
+Currently, only while loops are implemented, and once again they mostly follow C syntax and behavior.
+
+```
+while(condition) {
+
+}
+```
+
+No for-loops are present in Panda at the moment.  
+
+<br/>
+
+# Importing external code
+
+## Imports
+
+Imports are defined with the `import` statement and should be placed at the beginning of the code, outside any function definition. The import is then specified with a "." joined path to the Panda source code file from which functions must be imported. So for example
+
+```
+import libraries.utils.strings
+```
+
+would import all the functions defined under `\libraries\utils\strings.pnd`. Note that the extenstion should be omitted.  
+While all functions are imported, only the ones that are actually used end up in the final shellcode.  
+It is important that no `main` function is defined in these libraries. 
+
+
+## Windows API functions
+
+Windows API functions can be imported with the `declare` statement, which accepts the function name and the DLL it is contained in as parameters. For example
+```
+declare("MessageBoxA", "user32.dll");
+```
+`declare` statements must be placed at the top of the source file, before anything else, including imports.  
+Once a function is declared, it will then become available just as if it was any other function. So in the previous example it would be possible to call the function simply as
+```
+string a = "Text";
+string b = "Caption";
+MessageBoxA(0, a, b, 0);
+```
+
+Once any declare is added, two functions will be resolved automatically and will be available without specific declaring. `LoadLibraryA` will be resolved so that the compiler can automatically load modules that contain new function declarations. `TerminateProcess` wil also be resolved.
