@@ -1,5 +1,5 @@
 ---
-title: $whoami
+title: About me
 permalink: /about
 permalink_name: /about
 ---
