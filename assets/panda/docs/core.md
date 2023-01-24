@@ -6,7 +6,7 @@ permalink_name: PandaSpecs
 
 ## Syntax
 
-Panda is a semi-colon terminated language. The usage is similar to C, and semi-colons are required where C would also require them. White spaces are generally ignored unless used within a quoted string.  
+Panda is a semi-colon terminated language. The usage is similar to C, and semi-colons are required where C would also require them. White spaces are generally ignored unless used within a quoted string.
 
 <br/>
 
@@ -21,25 +21,25 @@ Example: `int variable = 4;`
 
 
 `string`  
-Represent an ASCII string, each character is byte-sized. It is created as a stack string by pushing the conent in revese to the stack. NULL-terminated.
+Represent an ASCII string, each character is byte-sized. It is created as a stack string by pushing the content in reverse to the stack. NULL-terminated.
 
 Example: `string variable = "Hello World";`
 
 
 `array int`  
-A constant sized array of `int` values. It is also created by pushing the content to the stack in reverse. The array can be created both with initialized and uninitialized values.
+A constant-sized array of `int` values. It is also created by pushing the content to the stack in reverse. The array can be created both with initialized and uninitialized values.
 
 Example: `array variable = int{1, 2, 3, 4};` or `array variable int[4];`
 
 
 `array byte`  
-A constant sized array of byte values. Similar to strings, but allows to use non-printable charachters. This can also be used to create C style structs. The array can be created both with initialized and uninitialized values.
+A constant-sized array of byte values. Similar to strings, but allows using non-printable characters. This can also be used to create C-style structs. The array can be created both with initialized and uninitialized values.
 
 Example: `array variable = byte{1, 2, 3, 4};` or `array variable byte[4];`
 
 <br/>
 
-The data types available give direct control over pointer-sized and byte values. In order to modify WORD values (and DWORD values in 64 bits) specific rotation and shifting operators are provided. `string` and `array` types can be index into with the usual `[index]` format.  
+The data types available give direct control over pointer-sized and byte values. In order to modify WORD values (and DWORD values in 64 bits) specific rotation and shifting operators are provided. `string` and `array` types can be indexed into with the usual `[index]` format.  
 
 <br>
 
@@ -47,10 +47,10 @@ The data types available give direct control over pointer-sized and byte values.
 
 A variable must always be declared before use. Variables can be declared at any point during a specific function logic but regardless of where it is declared space will be allocated for it on the stack.  
 
-Declaration happens similarly as C, by simply stating the type of the variable in front of it upon first usage.  
-For array types, only the keywork `array` has to be specified. The arrays can be then created with by specifying a size in square brakets or by specifing the actual elements in the array in curly brackets. Either way the keyword `int` or `byte` must be prepended to the braket to speciy the array type.
+Declaration happens similarly to C, by simply stating the type of the variable in front of it upon the first usage.  
+For array types, only the keyword `array` has to be specified. The arrays can be then created by specifying a size in square brackets or by specifying the actual elements in the array in curly brackets. Either way, the keyword `int` or `byte` must be prepended to the bracket to specify the array type.
 
-It is also possible to case a variable to a different type when required. This doesn't add any code, it only informs the compile that the variable should be used as a different type one. This can be done with an assignment to a new type.
+It is also possible to cast a variable to a different type when required. This doesn't add any code, it only informs the compiler that the variable should be used as a different type one. This can be done with an assignment to a new type.
 
 Examples:  
 ```
@@ -68,10 +68,10 @@ f = int;
 ## Arithmetic and logic operators
 
 `+`  
-The plus sign always performs an addition. The right hand operand must always be a variable of type `int` or a constant numeric value. The operator can be used to add integers together or to add values to pointer for indexing into an array.
+The plus sign always performs an addition. The right-hand operand must always be a variable of type `int` or a constant numeric value. The operator can be used to add integers together or to add values to a pointer for indexing into an array.
 
 `-`  
-The minus sign always performs a subtraction. The right hand operand must always be a variable of type `int` or a constant numeric value. The operator can be used to subtract an integer from another one or to subtract values to pointer for indexing into an array.
+The minus sign always performs a subtraction. The right-hand operand must always be a variable of type `int` or a constant numeric value. The operator can be used to subtract an integer from another one or to subtract values to a pointer for indexing into an array.
 
 `*`  
 The star sign performs a multiplication between two numerical values.
@@ -121,13 +121,13 @@ Writes a zero-padded byte value, corresponding with the ASCII number for "l" int
 array a = int{1, 2, 3, 4};
 int b = *(a + 2);
 ```  
-Writes a full pointer-sized value to b, in this case the number 3.
+Writes a full pointer-sized value to b, in this case, the number 3.
 ```
 string a = "Hello World";
 string b = "Beautiful day";
 a[3] = b[0];
 ```
-Writes a single byte into the a string, in this case it changes the "l" charachter with the "B" one from string b. Note that `a[3]` is equivalent to `*(a+3)`.
+Writes a single byte into the string, in this case, it changes the "l" character with the "B" one from string b. Note that `a[3]` is equivalent to `*(a+3)`.
 
 `&`  
 The single ampersand operator is used to get the address of a variable.
@@ -139,19 +139,19 @@ Note that for arrays and strings that already are pointers, the operator returns
 The operator performs a right bit rotation of a specified number of steps. It assumes a pointer-sized operand size.  
 
 `ror16`  
-Similar to `ror`, but assumes a WORD sized operand size. This can be useful to modify WORD values within a 32 or 64 bit valriable.
+Similar to `ror`, but assumes a WORD sized operand size. This can be useful to modify WORD values within a 32 or 64 bit variable.
 
 `rol`  
 The operator performs a left bit rotation of a specified number of steps. It assumes a pointer-sized operand size.  
 
 `rol16`  
-Similar to `rol`, but assumes a WORD sized operand size. This can be useful to modify WORD values within a 32 or 64 bit valriable.
+Similar to `rol`, but assumes a WORD sized operand size. This can be useful to modify WORD values within a 32 or 64 bit variable.
 
 `shr`  
-Performs a right bit shift of a specified numbers of steps. Values are 0 padded and overflowing bits are discarded.
+Performs a right bit shift of a specified number of steps. Values are 0 padded and overflowing bits are discarded.
 
 `shl`  
-Performs a left bit shift of a specified numbers of steps. Values are 0 padded and overflowing bits are discarded.
+Performs a left bit shift of a specified number of steps. Values are 0 padded and overflowing bits are discarded.
 
 Examples:  
 ```
@@ -169,7 +169,7 @@ c = a shl b;
 ## Comparision operators
 
 Comparision operators are `>`, `>=`, `<`, `<=`, `==`, `!=` and their usege is similar to other languages.  
-Note that Panda does not have a concept of Boolean value, so statements like `int c = a < b;` are not valid and will produce unexpected results. Comparison operators are to be used with with `if` and `while` statements only.  
+Note that Panda does not have a concept of Boolean value, so statements like `int c = a < b;` are not valid and will produce unexpected results. Comparison operators are to be used with `if` and `while` statements only.  
 
 <br/>
 
@@ -178,7 +178,7 @@ Note that Panda does not have a concept of Boolean value, so statements like `in
 
 ## Functions
 
-Functions are defined with the `fn` keyword and given a type. The function definition is otherwise similar to C with parameters in parenthesis in the "type name" format, and code enclosed in curly brakets. For exmple:
+Functions are defined with the `fn` keyword and given a type. The function definition is otherwise similar to C with parameters in parenthesis in the "type name" format, and code enclosed in curly brackets. For example:
 
 ```
 int fn ThisIsAFunc(string str, int num) {
@@ -187,7 +187,7 @@ int fn ThisIsAFunc(string str, int num) {
 ```
 
 Functions return with the `return` value, which must always return a value.  
-Note that, despite functions having a type, that currently means nothig since the value returned is always a pointer-sized value regardless.  
+Note that, despite functions having a type, that currently means nothing since the value returned is always a pointer-sized value regardless.  
 
 Each program should have exactly one `main` function defined to start execution from.
 
@@ -203,11 +203,11 @@ if(condition) {
 }
 ```
 
-Else-if statements are currently not implemented so a nested if-statement is required to acheive the same result.
+Else-if statements are currently not implemented so a nested if-statement is required to achieve the same result.
 
 ## Loops
 
-Currently, only while loops are implemented, and once again they mostly follow C syntax and behavior.
+Currently, only while loops are implemented, and once again they mostly follow C syntax and behaviour.
 
 ```
 while(condition) {
@@ -229,9 +229,9 @@ Imports are defined with the `import` statement and should be placed at the begi
 import libraries.utils.strings
 ```
 
-would import all the functions defined under `\libraries\utils\strings.pnd`. Note that the extenstion should be omitted.  
-While all functions are imported, only the ones that are actually used end up in the final shellcode.  
-It is important that no `main` function is defined in these libraries. 
+would import all the functions defined under `\libraries\utils\strings.pnd`. Note that the extension should be omitted.  
+While all functions are imported, only the ones that are used end up in the final shellcode.  
+No `main` function must be defined in these libraries. 
 
 
 ## Windows API functions
@@ -241,11 +241,11 @@ Windows API functions can be imported with the `declare` statement, which accept
 declare("MessageBoxA", "user32.dll");
 ```
 `declare` statements must be placed at the top of the source file, before anything else, including imports.  
-Once a function is declared, it will then become available just as if it was any other function. So in the previous example it would be possible to call the function simply as
+Once a function is declared, it will then become available just as if it was any other function. So in the previous example, it would be possible to call the function simply as
 ```
 string a = "Text";
 string b = "Caption";
 MessageBoxA(0, a, b, 0);
 ```
 
-Once any declare is added, two functions will be resolved automatically and will be available without specific declaring. `LoadLibraryA` will be resolved so that the compiler can automatically load modules that contain new function declarations. `TerminateProcess` wil also be resolved.
+Once any declare is added, two functions will be resolved automatically and will be available without a specific declaring. `LoadLibraryA` will be resolved so that the compiler can automatically load modules that contain new function declarations. `TerminateProcess` will also be resolved.
