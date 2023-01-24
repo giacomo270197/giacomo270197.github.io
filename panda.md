@@ -4,7 +4,7 @@ permalink: /panda
 permalink_name: /panda
 ---
 
-<a href="/assets/panda/images/panda_logo.jpeg"><img src="/assets/panda/images/panda_logo.jpeg" margin="0 250px 0" width="100%"/></a>
+<a href="/assets/panda/images/panda_logo.jpeg"><img src="/assets/panda/images/panda_logo2.jpeg" margin="0 250px 0" width="100%"/></a>
 
 # Panda
 
