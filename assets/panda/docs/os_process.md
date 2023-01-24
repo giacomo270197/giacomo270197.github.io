@@ -10,4 +10,4 @@ A library that contains functions used for interacting with other processes on t
 
 `int CreateProcess(string cmd_line)`  
 
-Takes a string as an input, and uses it to spawns a new process. The function returns a handle to the newly created process.
+Takes a string as input, and uses it to spawn a new process. The function returns a handle to the newly created process.
